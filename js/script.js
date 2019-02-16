@@ -12,11 +12,9 @@ const studentArray = Array.from(studentNodeList);
 const itemsPerPage = 10;
 // Set the page number
 const pageNumber = Math.ceil(studentArray.length / itemsPerPage);
-
 const searchButton = createElement('button', 'innerText', 'Search');
 const paginationDiv = createElement('div', 'className', 'pagination');
 const searchInput = createElement('input', 'placeholder', 'Search for students');
-
 
 function createElement(elementName, property, value) {
   const element = document.createElement(elementName);
@@ -38,7 +36,7 @@ function showPage(studentList, page) {
   for (let i = (page * itemsPerPage) - itemsPerPage; i < page * itemsPerPage; i++) {
     studentList[i].style.display = '';
   }
-};
+}
 
 //Function appends the page links and the search bar
 function appendLinksSearch(pages) {
@@ -46,7 +44,6 @@ function appendLinksSearch(pages) {
     parentNode.appendChild(childNode);
   }
   //Create page links
-  //const paginationDiv = createElement('div', 'className', 'pagination');
   appendChild(pageDiv, paginationDiv);
   const pageList = createElement('ul', 'className', 'page-list');
   appendChild(paginationDiv, pageList);
@@ -62,22 +59,20 @@ function appendLinksSearch(pages) {
   const header = document.querySelector('.page-header');
   const searchDiv = createElement('div', 'className', 'student-search');
   appendChild(header, searchDiv);
-  //const searchInput = createElement('input', 'placeholder', 'Search for students');
   appendChild(searchDiv, searchInput);
-  //const searchButton = createElement('button', 'innerText', 'Search');
-  searchDiv.appendChild(searchButton);
   appendChild(searchDiv, searchButton);
-};
+}
 //Call function to load page links and search bar
 appendLinksSearch(pageNumber);
 //Call function to display first set of 10 students
 showPage(studentArray, 1);
+const pageList = document.querySelector('.page-list');
 
-let pageList = document.querySelector('.page-list')
 //Add functionality to page links
 pageList.addEventListener('click', (e) => {
+    console.log('got it');
     if (e.target.tagName === 'A') {
-      console.log('got it');
+
       showPage(studentArray, parseInt(e.target.innerText));
     }
 });
@@ -86,10 +81,12 @@ pageList.addEventListener('click', (e) => {
 searchButton.addEventListener('click', (e) => {
   const searchList = [];
   //Remove old page numbers
-  while (paginationDiv.firstChild) {
-    paginationDiv.removeChild(paginationDiv.firstChild);
+  while (pageList.firstChild) {
+    pageList.removeChild(pageList.firstElementChild);
   }
-
+  while (paginationDiv.firstChild) {
+    paginationDiv.removeChild(paginationDiv.firstElementChild);
+  }
   //Hide all the student items
   for (let i = 0; i < studentArray.length; i++) {
     studentArray[i].style.display = "none";
@@ -99,11 +96,21 @@ searchButton.addEventListener('click', (e) => {
     if (studentArray[i].innerText.includes(searchInput.value)){
       searchList.push(studentArray[i]);
     }
-    console.log(searchList.length);
+    //print "no results" to the page if searchList is empty
+    if (searchList.length === 0) {
+      paginationDiv.innerHTML = '<h3>No results</h3>';
+    }
   //Call function to display first set of 10 students in search query
   showPage(searchList, 1);
   //Call function to append new page links
   appendLinksSearch(Math.ceil(searchList.length/itemsPerPage));
-  //Reset pageList to the new ul so that eventListener applies to new links
-  pageList = document.querySelector('.page-list');
+  const pageListSearch = document.querySelector('.page-list');
+
+  //Event listener specific to the page numbers appended after a search
+  pageListSearch.addEventListener('click', (e) => {
+      console.log('got it');
+      if (e.target.tagName === 'A') {
+        showPage(searchList, parseInt(e.target.innerText));
+      }
+  });
 });
